@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Resume Builder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Resume Builder</h1>
+    <fieldset id="personal-detail">
+        <h2>Personal Details</h2>
+        <p>First Name: <br>
+            <input type="text" name="firstname" placeholder="Enter your first name" required>
+        </p>
+        <p>Last Name: <br>
+            <input type="text" name="lastname" placeholder="Enter your last name" required>
+        </p>
+        <p>Email: <br>
+            <input type="email" name="email" placeholder="Email address" required>
+        </p>
+        <p>
+            Upload Picture:
+            <input type="file" name="dp" id="profile-pic" accept="image/*">
+        </p>
+        <p>Nationality:
+            <select name="countries" required>
+                <option value="pakistan">Pakistan</option>
+                <option value="india">India</option>
+                <option value="england">England</option>
+                <option value="saudi-arab">Saudi Arabia</option>
+            </select>
+        </p>
+    </fieldset>
+
+    <fieldset id="education">
+        <h2>Education</h2>
+        <p>Education: <br>
+            <input type="text" name="education_level" placeholder="Education" required>
+        </p>
+        <p>Degree/Field: <br>
+            <input type="text" name="degree" placeholder="Degree or Field">
+        </p>
+        <p>Institution: <br>
+            <input type="text" name="institution" placeholder="Institution">
+        </p>
+        <p>Year: <br>
+            <input type="number" name="year" placeholder="Year">
+        </p>
+    </fieldset>
+
+    <fieldset id="work-experience">
+        <h2>Work Experience</h2>
+        <div class="experience">
+            <p>Job Title: <br>
+                <input type="text" name="job[]" placeholder="Job Title">
+            </p>
+            <p>Company: <br>
+                <input type="text" name="company[]" placeholder="Company">
+            </p>
+            <p>Year: <br>
+                <input type="number" name="jobyear[]" placeholder="Year">
+            </p>
+            <p>Description: <br>
+                <textarea name="description[]" placeholder="Experience description"></textarea>
+            </p>
+        </div>
+        <button type="button" onclick="addExperience()">Add More Experience</button>
+    </fieldset>
+
+    <fieldset id="skills">
+        <h2>Skills</h2>
+        <div class="skill">
+            <p>Skill: <br>
+                <input type="text" name="skill[]" placeholder="Any skill">
+            </p>
+        </div>
+        <button type="button" onclick="addSkill()">Add More Skill</button>
+    </fieldset>
+
+    <button onclick="generateResume()">Generate Resume</button>
+
+    <div id="resume" style="display:none;"></div>
+
+    <script>
+        function addExperience() {
+            const experienceDiv = document.createElement('div');
+            experienceDiv.classList.add('experience');
+            experienceDiv.innerHTML = `
+                <p>Job Title: <br>
+                    <input type="text" name="job[]" placeholder="Job Title">
+                </p>
+                <p>Company: <br>
+                    <input type="text" name="company[]" placeholder="Company">
+                </p>
+                <p>Year: <br>
+                    <input type="number" name="jobyear[]" placeholder="Year">
+                </p>
+                <p>Description: <br>
+                    <textarea name="description[]" placeholder="Experience description"></textarea>
+                </p>`;
+            document.getElementById('work-experience').appendChild(experienceDiv);
+        }
+
+        function addSkill() {
+            const skillDiv = document.createElement('div');
+            skillDiv.classList.add('skill');
+            skillDiv.innerHTML = `
+                <p>Skill: <br>
+                    <input type="text" name="skill[]" placeholder="Any skill">
+                </p>`;
+            document.getElementById('skills').appendChild(skillDiv);
+        }
+
+        function generateResume() {
+            const firstName = document.querySelector('input[name="firstname"]').value;
+            const lastName = document.querySelector('input[name="lastname"]').value;
+            const email = document.querySelector('input[name="email"]').value;
+            const nationality = document.querySelector('select[name="countries"]').value;
+            const educationLevel = document.querySelector('input[name="education_level"]').value;
+            const degree = document.querySelector('input[name="degree"]').value;
+            const institution = document.querySelector('input[name="institution"]').value;
+            const year = document.querySelector('input[name="year"]').value;
+
+            let experiences = '';
+            const jobTitles = document.getElementsByName('job[]');
+            const companies = document.getElementsByName('company[]');
+            const jobYears = document.getElementsByName('jobyear[]');
+            const descriptions = document.getElementsByName('description[]');
+
+            for (let i = 0; i < jobTitles.length; i++) {
+                experiences += `<p contenteditable="true"><strong>Job Title:</strong> ${jobTitles[i].value}<br>
+                                <strong>Company:</strong> ${companies[i].value}<br>
+                                <strong>Year:</strong> ${jobYears[i].value}<br>
+                                <strong>Description:</strong> ${descriptions[i].value}</p>`;
+            }
+
+            let skills = '';
+            const skillInputs = document.getElementsByName('skill[]');
+            for (let i = 0; i < skillInputs.length; i++) {
+                skills += `<p contenteditable="true">${skillInputs[i].value}</p>`;
+            }
+
+            // Profile Picture
+            const picInput = document.getElementById('profile-pic');
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const resumeContent = `
+                    <h2 contenteditable="true">Resume</h2>
+                    <p contenteditable="true"><strong>Name:</strong> ${firstName} ${lastName}</p>
+                    <p contenteditable="true"><strong>Email:</strong> ${email}</p>
+                    <p contenteditable="true"><strong>Nationality:</strong> ${nationality}</p>
+                    <p><img src="${e.target.result}" alt="Profile Picture" style="max-width: 150px; border-radius: 50%;"></p>
+                    <h3>Education</h3>
+                    <p contenteditable="true"><strong>Level:</strong> ${educationLevel}<br>
+                    <strong>Degree:</strong> ${degree}<br>
+                    <strong>Institution:</strong> ${institution}<br>
+                    <strong>Year:</strong> ${year}</p>
+                    <h3>Work Experience</h3>
+                    ${experiences}
+                    <h3>Skills</h3>
+                    ${skills}
+                `;
+                document.getElementById('resume').innerHTML = resumeContent;
+                document.getElementById('resume').style.display = 'block'; // Show the resume
+            };
+            if (picInput.files[0]) reader.readAsDataURL(picInput.files[0]);
+        }
+    </script>
+</body>
+
+</html>
